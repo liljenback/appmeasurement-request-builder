@@ -1,1 +1,290 @@
-<h1>AppMeasurement Request Builder</h1>
+<!DOCTYPE html>
+<html lang="en">
+
+<!-- Kudos for looking at the source!                                 -->
+<!--                                                                  -->
+<!-- Accessible variables on this page:                               -->
+<!--   s - tracker object (where all your request data is set on).    -->
+<!--                                                                  -->
+<!-- If you view the network tab in Chrome you can see the request    -->
+<!-- being sent, and also copy the request as a curl command by       -->
+<!-- right clicking on the request and select "Copy as cURL".         -->
+<!-- This way you can send the request from your terminal as well.    -->
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AppMeasurement Request Builder</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css"
+    integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+</head>
+
+<body>
+  <script language="JavaScript">
+
+    let extraInputDiv = "extraInputs";
+
+    // TODO: Keep old fields around in local storage
+    let extraFields = [];
+
+    const addNewTextInput = (inputDetails) => {
+      // Set default values if properties are not provided
+      const label = inputDetails.label || "";
+      const value = inputDetails.value || "";
+      const placeholder = inputDetails.placeholder || "";
+      const id = inputDetails.id || "";
+
+      // Create the necessary elements
+      const formGroup = document.createElement("div");
+      formGroup.classList.add("form-group");
+      //formGroup.classList.add("mb-3");
+
+      const labelElement = document.createElement("label");
+      labelElement.textContent = label;
+      labelElement.setAttribute("for", id);
+
+      const textInputDiv = document.createElement("div");
+      textInputDiv.classList.add("input-group");
+
+      const inputElement = document.createElement("input");
+      inputElement.setAttribute("type", "text");
+      inputElement.setAttribute("value", value);
+      inputElement.classList.add("form-control");
+      inputElement.setAttribute("id", id);
+      inputElement.setAttribute("placeholder", placeholder);
+
+
+      const helpElement = document.createElement("small");
+      helpElement.classList.add("form-text");
+      helpElement.classList.add("text-muted");
+      helpElement.innerHTML = helpText[id] + " " + `<a href="${helpText[id + "Url"]}" target="_blank">.. learn more</a>`;
+
+      const deleteButtonDiv = document.createElement("div");
+      deleteButtonDiv.classList.add("input-group-prepend");
+
+      const deleteButton = document.createElement("button");
+      deleteButton.classList.add("btn");
+      deleteButton.classList.add("btn-outline-secondary");
+      //deleteButton.classList.add("btn-danger");
+      deleteButton.style.hover = "border-color: black";
+      deleteButton.setAttribute("type", "button");
+      deleteButton.style.cursor = "pointer";
+      deleteButton.textContent = "X";
+
+      // Add delete functionality
+      deleteButton.addEventListener("click", function () {
+        formGroup.remove();
+      });
+
+      deleteButtonDiv.appendChild(deleteButton);
+
+      textInputDiv.appendChild(deleteButtonDiv);
+      textInputDiv.appendChild(inputElement);
+
+      // Append elements to form group
+      formGroup.appendChild(labelElement);
+      formGroup.appendChild(textInputDiv);
+      formGroup.appendChild(helpElement);
+
+      // Append form group to the specified div
+      const extraInputsDiv = document.getElementById(extraInputDiv);
+      extraInputsDiv.appendChild(formGroup);
+    };
+
+    const addNewMultiInput = (inputDetails) => {
+      // Set default values if properties are not provided
+      const label = inputDetails.label || "";
+      const value = inputDetails.value || "";
+      const placeholder = inputDetails.placeholder || "";
+      const id = inputDetails.id || "";
+
+      // Create the necessary elements
+      const formGroup = document.createElement("div");
+      formGroup.classList.add("form-group");
+      //formGroup.classList.add("mb-3");
+
+      const labelElement = document.createElement("label");
+      labelElement.textContent = label;
+      labelElement.setAttribute("for", id);
+
+      const textInputDiv = document.createElement("div");
+      textInputDiv.classList.add("input-group");
+
+      const numberInputElement = document.createElement("input");
+      numberInputElement.setAttribute("type", "number");
+      numberInputElement.setAttribute("max", "100");
+      numberInputElement.setAttribute("min", "1");
+      numberInputElement.setAttribute("value", value);
+      numberInputElement.classList.add("form-control");
+      numberInputElement.setAttribute("id", id);
+      numberInputElement.setAttribute("placeholder", `Enter ${inputDetails.id} # here`);
+
+      const inputElement = document.createElement("input");
+      inputElement.setAttribute("type", "text");
+      inputElement.setAttribute("value", value);
+      inputElement.classList.add("form-control");
+      inputElement.setAttribute("id", id);
+      inputElement.setAttribute("placeholder", placeholder);
+
+      const helpElement = document.createElement("small");
+      helpElement.classList.add("form-text");
+      helpElement.classList.add("text-muted");
+      helpElement.innerHTML = helpText[id] + " " + `<a href="${helpText[id + "Url"]}" target="_blank">.. learn more</a>`;
+
+      const deleteButtonDiv = document.createElement("div");
+      deleteButtonDiv.classList.add("input-group-prepend");
+
+      const deleteButton = document.createElement("button");
+      deleteButton.classList.add("btn");
+      deleteButton.classList.add("btn-outline-secondary");
+      //deleteButton.classList.add("btn-danger");
+      deleteButton.style.hover = "border-color: black";
+      deleteButton.setAttribute("type", "button");
+      deleteButton.style.cursor = "pointer";
+      deleteButton.textContent = "X";
+
+      // Add delete functionality
+      deleteButton.addEventListener("click", function () {
+        formGroup.remove();
+      });
+
+      deleteButtonDiv.appendChild(deleteButton);
+
+      textInputDiv.appendChild(deleteButtonDiv);
+      textInputDiv.appendChild(numberInputElement);
+      textInputDiv.appendChild(inputElement);
+
+      // Append elements to form group
+      formGroup.appendChild(labelElement);
+      formGroup.appendChild(textInputDiv);
+      formGroup.appendChild(helpElement);
+
+      // Append form group to the specified div
+      const extraInputsDiv = document.getElementById(extraInputDiv);
+      extraInputsDiv.appendChild(formGroup);
+    };
+
+
+
+    const createNewField = fieldName => {
+      const name = fieldName.toLowerCase();
+      if (name === "campaign") {
+        addNewTextInput({
+          label: "Campaign",
+          id: "campaign",
+          fieldType: "text",
+          placeholder: "Enter campaign here"
+        });
+      } else if (name === "products") {
+        addNewTextInput({
+          label: "Products",
+          id: "products",
+          fieldType: "text",
+          placeholder: "Enter product string here"
+        });
+      } else if (name === "events") {
+        addNewTextInput({
+          label: "Events",
+          id: "events",
+          fieldType: "text",
+          placeholder: "Enter event string here"
+        });
+      } else if (name === "prop") {
+        addNewMultiInput({
+          label: "Prop",
+          id: "prop",
+          fieldType: "text",
+          placeholder: "Enter prop value here"
+        });
+      } else if (name === "evar") {
+        addNewMultiInput({
+          label: "eVar",
+          id: "eVar",
+          fieldType: "text",
+          placeholder: "Enter eVar value here"
+        });
+      }
+      return false;
+    };
+
+    const renderFields = () => {
+    };
+
+    // Create a map of id to help text
+    const helpText = {
+      "account": "",
+      "trackingServer": "Tracking Server",
+      "pageName": "Page Name",
+      "prop": "Custom variable you can use however you'd like (e.g. Check-out Step 1).",
+      "propUrl": "https://experienceleague.adobe.com/docs/analytics/implementation/vars/page-vars/prop.html",
+      "eVar": "Captures actions or attributes (e.g. Summer Campaign).",
+      "eVarUrl": "https://experienceleague.adobe.com/docs/analytics/implementation/vars/page-vars/evar.html",
+      "events": "Events can be correlated to eVars (e.g. Purchase).",
+      "eventsUrl": "https://experienceleague.adobe.com/docs/analytics/implementation/vars/page-vars/events/events-overview.html",
+      "products": "Tracks products and properties tied to them (e.g. Example category 1;Example product 1;1;3.50).",
+      "productsUrl": "https://experienceleague.adobe.com/docs/analytics/implementation/vars/page-vars/products.html",
+      "campaign": "Collects tracking codes on your site (legacy field and works just like an eVar).",
+      "campaignUrl": "https://experienceleague.adobe.com/docs/analytics/implementation/vars/page-vars/campaign.html"
+    };
+
+  </script>
+
+<br>
+<div class="jumbotron col-lg-6 col-md-6 col-sm-6 col-xs-6 offset-3 float-md-center">
+    <h1 class="display-4">AppMeasurement Request Builder</h1>
+    <p class="lead">This is a simple tool to help you build and send an AppMeasurement request.</p>
+    <hr class="my-4">
+    <p>Use this form to specify properties to send to Adobe Analytics.</p>
+    <form>
+      <div class="form-group">
+        <label for="trackingServer">Tracking Server</label>
+        <input type="text" value="rsid.data.omtrdc.net" class="form-control" id="trackingServer"
+          placeholder="Tracking Server" required>
+        <small id="rsidHelp" class="form-text text-muted">
+          This is the Adobe hosted domain where the request is sent (e.g. metrics.example.com)<a
+            href="https://experienceleague.adobe.com/docs/analytics/implementation/vars/config-vars/trackingserversecure.html"
+            target="_blank">.. learn more</a>
+        </small>
+      </div>
+      <div class="form-group">
+        <label for="reportSuiteId">Report Suite ID</label>
+        <input type="text" class="form-control" id="account" placeholder="Enter RSID here" required>
+        <small id="rsidHelp" class="form-text text-muted">
+          This is a unique identifier representing a silo of data where the request data is stored (e.g.
+          examplereportsuite).<a
+            href="https://experienceleague.adobe.com/docs/analytics/admin/admin-tools/manage-report-suites/c-new-report-suite/t-create-a-report-suite.html"
+            target="_blank">.. learn more</a>
+        </small>
+      </div>
+      <div class="form-group">
+        <label for="pageName">Page Name</label>
+        <input type="text" value="Test Page" class="form-control" id="pageName" placeholder="Input a page name here">
+      </div>
+      <div id="extraInputs">
+      </div>
+      <br>
+      <div class="form-row">
+        <div class="form-group col-md-6">
+          <select class="form-control" id="fieldType">
+            <option>Additional optional fields ...</option>
+            <option>Prop</option>
+            <option>eVar</option>
+            <option>Events</option>
+            <option>Products</option>
+            <!-- <option>Hier</option> -->
+            <option>Campaign</option>
+          </select>
+        </div>
+        <div class="form-group col-md-6">
+          <!-- button that triggers a new field creation -->
+          <button type="button" class="btn btn-outline-secondary"
+            onclick="createNewField(document.getElementById('fieldType').value)">Add Field</button>
+        </div>
+      </div>
+      <button type="submit" class="btn btn-primary">Send Request</button>
+    </form>
+  </div>
+
+</body>
+
+</html>
