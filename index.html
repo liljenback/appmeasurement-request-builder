@@ -261,6 +261,8 @@
 
       // Send the request
       s.t();
+
+      return false;
     };
 
   </script>
@@ -271,10 +273,10 @@
     <p class="lead">This is a simple tool to help you build and send an AppMeasurement request.</p>
     <hr class="my-4">
     <p>Use this form to specify properties to send to Adobe Analytics.</p>
-    <form>
+    <form onsubmit="event.preventDefault(); sendRequest();">
       <div class="form-group">
         <label for="trackingServer">Tracking Server</label>
-        <input type="text" value="rsid.data.omtrdc.net" class="form-control" id="trackingServer"
+        <input type="text" value="rsid.data.adobedc.net" class="form-control" id="trackingServer"
           placeholder="Tracking Server" required>
         <small id="rsidHelp" class="form-text text-muted">
           This is the Adobe hosted domain where the request is sent (e.g. metrics.example.com)<a
@@ -317,7 +319,7 @@
             onclick="createNewField(document.getElementById('fieldType').value)">Add Field</button>
         </div>
       </div>
-      <button type="button" class="btn btn-primary" onclick="sendRequest()">Send Request</button>
+      <button type="submit" class="btn btn-primary">Send Request</button>
     </form>
   </div>
 
