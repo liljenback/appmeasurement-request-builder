@@ -35,10 +35,10 @@
 
     const addNewTextInput = (inputDetails) => {
       // Set default values if properties are not provided
-      const label = inputDetails.label || "";
-      const value = inputDetails.value || "";
-      const placeholder = inputDetails.placeholder || "";
       const id = inputDetails.id || "";
+      const label = fieldInfo[id]["name"] || "";
+      const value = inputDetails.value || "";
+      const placeholder = fieldInfo[id]["placeholder"] || "";
 
       // Create the necessary elements
       const formGroup = document.createElement("div");
@@ -59,11 +59,10 @@
       inputElement.setAttribute("id", id);
       inputElement.setAttribute("placeholder", placeholder);
 
-
       const helpElement = document.createElement("small");
       helpElement.classList.add("form-text");
       helpElement.classList.add("text-muted");
-      helpElement.innerHTML = helpText[id] + " " + `<a href="${helpText[id + "Url"]}" target="_blank">.. learn more</a>`;
+      helpElement.innerHTML = fieldInfo[id]["help"] + " " + `<a href="${fieldInfo[id]["url"]}" target="_blank">.. learn more</a>`;
 
       const deleteButtonDiv = document.createElement("div");
       deleteButtonDiv.classList.add("input-group-prepend");
@@ -99,10 +98,10 @@
 
     const addNewMultiInput = (inputDetails) => {
       // Set default values if properties are not provided
-      const label = inputDetails.label || "";
-      const value = inputDetails.value || "";
-      const placeholder = inputDetails.placeholder || "";
       const id = inputDetails.id || "";
+      const label = fieldInfo[id]["name"] || "";
+      const value = inputDetails.value || "";
+      const placeholder = fieldInfo[id]["placeholder"] || "";
 
       // Create the necessary elements
       const formGroup = document.createElement("div");
@@ -122,7 +121,7 @@
       numberInputElement.setAttribute("min", "1");
       numberInputElement.setAttribute("value", value);
       numberInputElement.classList.add("form-control");
-      numberInputElement.setAttribute("id", id);
+      numberInputElement.setAttribute("id", `${id}number`);
       numberInputElement.setAttribute("placeholder", `Enter ${inputDetails.id} # here`);
 
       const inputElement = document.createElement("input");
@@ -135,7 +134,7 @@
       const helpElement = document.createElement("small");
       helpElement.classList.add("form-text");
       helpElement.classList.add("text-muted");
-      helpElement.innerHTML = helpText[id] + " " + `<a href="${helpText[id + "Url"]}" target="_blank">.. learn more</a>`;
+      helpElement.innerHTML = fieldInfo[id]["help"] + " " + `<a href="${fieldInfo[id]["url"]}" target="_blank">.. learn more</a>`;
 
       const deleteButtonDiv = document.createElement("div");
       deleteButtonDiv.classList.add("input-group-prepend");
@@ -170,67 +169,66 @@
       extraInputsDiv.appendChild(formGroup);
     };
 
-
-
-    const createNewField = fieldName => {
-      const name = fieldName.toLowerCase();
-      if (name === "campaign") {
-        addNewTextInput({
-          label: "Campaign",
-          id: "campaign",
-          fieldType: "text",
-          placeholder: "Enter campaign here"
-        });
-      } else if (name === "products") {
-        addNewTextInput({
-          label: "Products",
-          id: "products",
-          fieldType: "text",
-          placeholder: "Enter product string here"
-        });
-      } else if (name === "events") {
-        addNewTextInput({
-          label: "Events",
-          id: "events",
-          fieldType: "text",
-          placeholder: "Enter event string here"
-        });
-      } else if (name === "prop") {
+    const createOptionalField = fieldName => {
+      if (fieldInfo[fieldName] === undefined) {
+        return false;
+      }
+      if (fieldInfo[fieldName].inputs === 2) {
         addNewMultiInput({
-          label: "Prop",
-          id: "prop",
-          fieldType: "text",
-          placeholder: "Enter prop value here"
+          id: fieldName,
+          fieldType: "text"
         });
-      } else if (name === "evar") {
-        addNewMultiInput({
-          label: "eVar",
-          id: "eVar",
-          fieldType: "text",
-          placeholder: "Enter eVar value here"
+      } else {
+        addNewTextInput({
+          id: fieldName,
+          fieldType: "text"
         });
       }
-      return false;
     };
 
     const renderFields = () => {
     };
 
-    // Create a map of id to help text
-    const helpText = {
-      "account": "",
-      "trackingServer": "Tracking Server",
-      "pageName": "Page Name",
-      "prop": "Custom variable you can use however you'd like (e.g. Check-out Step 1).",
-      "propUrl": "https://experienceleague.adobe.com/docs/analytics/implementation/vars/page-vars/prop.html",
-      "eVar": "Captures actions or attributes (e.g. Summer Campaign).",
-      "eVarUrl": "https://experienceleague.adobe.com/docs/analytics/implementation/vars/page-vars/evar.html",
-      "events": "Events can be correlated to eVars (e.g. Purchase).",
-      "eventsUrl": "https://experienceleague.adobe.com/docs/analytics/implementation/vars/page-vars/events/events-overview.html",
-      "products": "Tracks products and properties tied to them (e.g. Example category 1;Example product 1;1;3.50).",
-      "productsUrl": "https://experienceleague.adobe.com/docs/analytics/implementation/vars/page-vars/products.html",
-      "campaign": "Collects tracking codes on your site (legacy field and works just like an eVar).",
-      "campaignUrl": "https://experienceleague.adobe.com/docs/analytics/implementation/vars/page-vars/campaign.html"
+    // Create a map of field id to different properties
+    const fieldInfo = {
+      // "account": "",
+      // "trackingServer": "Tracking Server",
+      // "pageName": "Page Name",
+      prop: {
+        "name": "Prop",
+        "help": "Custom variable you can use however you'd like (e.g. Check-out Step 1).",
+        "inputs": 2,
+        "placeholder": "Enter prop value here",
+        "url": "https://experienceleague.adobe.com/docs/analytics/implementation/vars/page-vars/prop.html"
+      },
+      eVar: {
+        "name": "eVar",
+        "help": "Captures actions or attributes (e.g. Summer Campaign).",
+        "inputs": 2,
+        "placeholder": "Enter eVar value here",
+        "url": "https://experienceleague.adobe.com/docs/analytics/implementation/vars/page-vars/evar.html"
+      },
+      events: {
+        "name": "Events",
+        "help": "Events can be correlated to eVars (e.g. Purchase).",
+        "inputs": 1,
+        "placeholder": "Enter event string here",
+        "url": "https://experienceleague.adobe.com/docs/analytics/implementation/vars/page-vars/events/events-overview.html"
+      },
+      products: {
+        "name": "Products",
+        "help": "Tracks products and properties tied to them (e.g. Example category 1;Example product 1;1;3.50).",
+        "inputs": 1,
+        "placeholder": "Enter product string here",
+        "url": "https://experienceleague.adobe.com/docs/analytics/implementation/vars/page-vars/products.html"
+      },
+      campaign: {
+        "name": "Campaign",
+        "help": "Collects tracking codes on your site (legacy field and works just like an eVar).",
+        "inputs": 1,
+        "placeholder": "Enter campaign here",
+        "url": "https://experienceleague.adobe.com/docs/analytics/implementation/vars/page-vars/campaign.html"
+      }
     };
 
     let s;
@@ -239,6 +237,12 @@
 
       let account = document.getElementById("account").value;
       s = s_gi(account);
+      // If the domain ends with github.io I need to set cookieDomainPeriods to 3
+      // because github.io is on the public suffix list.
+      // TODO: Remove this when next version of AppMeasurement (2.26.0) is released
+      if (window.location.hostname.endsWith("github.io")) {
+        s.cookieDomainPeriods = 3;
+      }
 
       // Clear the fields because the tracker might have been used before
       s.clearVars();
@@ -254,9 +258,9 @@
         let value = item.value;
         if (id !== "account" && id !== "trackingServer" && id !== "pageName") {
           // eVars and props has two fields. The number and the value
-          if (id === "eVar" || id === "prop") {
-            id = id + item.value;
+          if (item.type === "number") {
             i += 1;
+            id = formItems[i].id + item.value;
             value = formItems[i].value;
           }
         }
@@ -272,8 +276,8 @@
 
   </script>
 
-<br>
-<div class="jumbotron col-lg-6 col-md-6 col-sm-6 col-xs-6 offset-3 float-md-center">
+  <br>
+  <div class="jumbotron col-lg-6 col-md-6 col-sm-6 col-xs-6 offset-3 float-md-center">
     <h1 class="display-4">AppMeasurement Request Builder</h1>
     <p class="lead">This is a simple tool to help you build and send an AppMeasurement request.</p>
     <hr class="my-4">
@@ -290,7 +294,7 @@
         </small>
       </div>
       <div class="form-group">
-        <label for="reportSuiteId">Report Suite ID</label>
+        <label for="account">Report Suite ID</label>
         <input type="text" class="form-control" id="account" placeholder="Enter RSID here" required>
         <small id="rsidHelp" class="form-text text-muted">
           This is a unique identifier representing a silo of data where the request data is stored (e.g.
@@ -310,18 +314,18 @@
         <div class="form-group col-md-6">
           <select class="form-control" id="fieldType">
             <option>Additional optional fields ...</option>
-            <option>Prop</option>
-            <option>eVar</option>
-            <option>Events</option>
-            <option>Products</option>
+            <option value="prop">Prop</option>
+            <option value="eVar">eVar</option>
+            <option value="events">Events</option>
+            <option value="products">Products</option>
             <!-- <option>Hier</option> -->
-            <option>Campaign</option>
+            <option value="campaign">Campaign</option>
           </select>
         </div>
         <div class="form-group col-md-6">
           <!-- button that triggers a new field creation -->
           <button type="button" class="btn btn-outline-secondary"
-            onclick="createNewField(document.getElementById('fieldType').value)">Add Field</button>
+            onclick="createOptionalField(document.getElementById('fieldType').value)">Add Field</button>
         </div>
       </div>
       <br>
