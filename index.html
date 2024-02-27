@@ -31,7 +31,7 @@
     let extraInputDiv = "extraInputs";
 
     // TODO: Keep old fields around in local storage
-    let extraFields = [];
+    let fields = {};
 
     const addNewTextInput = (inputDetails) => {
       // Set default values if properties are not provided
@@ -169,7 +169,7 @@
       extraInputsDiv.appendChild(formGroup);
     };
 
-    const createOptionalField = fieldName => {
+    const addOptionalField = fieldName => {
       if (fieldInfo[fieldName] === undefined) {
         return false;
       }
@@ -325,7 +325,7 @@
         <div class="form-group col-md-6">
           <!-- button that triggers a new field creation -->
           <button type="button" class="btn btn-outline-secondary"
-            onclick="createOptionalField(document.getElementById('fieldType').value)">Add Field</button>
+            onclick="addOptionalField(document.getElementById('fieldType').value)">Add Field</button>
         </div>
       </div>
       <br>
