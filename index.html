@@ -116,6 +116,7 @@
       const id = inputDetails.id || "";
       const label = fieldInfo[id]["name"] || "";
       const value = inputDetails.value || "";
+      const number = inputDetails.number || "";
       const placeholder = fieldInfo[id]["placeholder"] || "";
 
       // Create the necessary elements
@@ -134,7 +135,7 @@
       numberInputElement.setAttribute("type", "number");
       numberInputElement.setAttribute("max", "100");
       numberInputElement.setAttribute("min", "1");
-      numberInputElement.setAttribute("value", value);
+      numberInputElement.setAttribute("value", number);
       numberInputElement.classList.add("form-control");
       numberInputElement.setAttribute("id", `${id}number`);
       numberInputElement.setAttribute("placeholder", `Enter ${inputDetails.id} # here`);
@@ -241,12 +242,98 @@
     let s;
 
 
-    clearForm = () => {
+    const clearForm = () => {
       document.getElementById("account").value = "";
       document.getElementById("trackingServer").value = "rsid.data.adobedc.net";
       document.getElementById("pageName").value = "Test Page";
       document.getElementById(extraInputDiv).innerHTML = "";
     };
+
+    const getFormValues = () => {
+      const formItems = document.getElementById("requestForm").querySelectorAll("input");
+      let formValues = {};
+      for (let i = 0; i < formItems.length; i++) {
+        const item = formItems[i];
+        let id = item.id;
+        let value = item.value;
+        // eVars and props has two fields. The number and the value
+        if (item.type === "number") {
+          i += 1;
+          id = formItems[i].id + item.value;
+          value = formItems[i].value;
+        }
+        formValues[id] = value;
+      }
+      return formValues;
+    };
+
+    const indexedFieldPrefixes = ["prop", "eVar"];
+
+    const getIndexedFieldPrefix = (field) => {
+      for (let i = 0; i < indexedFieldPrefixes.length; i++) {
+        if (field.startsWith(indexedFieldPrefixes[i])) {
+          return indexedFieldPrefixes[i];
+        }
+      }
+      return null;
+    };
+
+    const isIndexedField = (field) => {
+      return getIndexedFieldPrefix(field) !== null;
+    };
+
+    const populateForm = (formValues) => {
+      if (!formValues) {
+        return;
+      }
+      if (formValues["account"]) {
+        document.getElementById("account").value = formValues["account"];
+      }
+      if (formValues["trackingServer"]) {
+        document.getElementById("trackingServer").value = formValues["trackingServer"];
+      }
+      if (formValues["pageName"]) {
+        document.getElementById("pageName").value = formValues["pageName"];
+      }
+      for (const key in formValues) {
+        if (key !== "account" && key !== "trackingServer" && key !== "pageName") {
+          // Check if the key is an indexed field e.g. evar1, prop5, etc.
+          if (isIndexedField(key)) {
+            const id = getIndexedFieldPrefix(key);
+            const number = key.replace(id, "");
+            addNewMultiInput({
+              id: id,
+              number: number,
+              value: formValues[key]
+            });
+          } else {
+            addNewTextInput({
+              id: key,
+              value: formValues[key]
+            });
+          }
+        }
+      }
+    };
+
+
+    const saveFormValuesToLocalStorage = () => {
+      const formValues = getFormValues();
+
+      console.log(formValues);
+
+      if (formValues) {
+        localStorage.setItem("appmReqBuilderFormValues", JSON.stringify(formValues));
+      }
+    };
+
+    const loadFormValuesFromLocalStorage = () => {
+      const formValues = JSON.parse(localStorage.getItem("appmReqBuilderFormValues"));
+      if (formValues) {
+        populateForm(formValues);
+      }
+    };
+
 
     const sendRequest = () => {
 
@@ -285,9 +372,16 @@
 
       // Send the request
       s.t();
+      alert("Request sent! Check the network tab in your browser to see the request being sent.");
+
+      saveFormValuesToLocalStorage();
 
       return false;
     };
+
+    window.addEventListener("load", function () {
+      loadFormValuesFromLocalStorage();
+    });
 
   </script>
 
@@ -298,7 +392,7 @@
     <hr class="my-4">
     <p>Use this form to specify properties to send to Adobe Analytics.</p>
     <div class="container-sm p-0" >
-      <form onsubmit="event.preventDefault(); sendRequest();">
+      <form id="requestForm" onsubmit="event.preventDefault(); sendRequest();">
         <div class="mb-3">
           <label for="trackingServer" class="form-label">Tracking Server</label>
           <div class="input-group">
