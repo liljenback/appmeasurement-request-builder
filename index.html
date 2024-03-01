@@ -177,19 +177,27 @@
       extraInputsDiv.appendChild(formGroup);
     };
 
+    const addRequiredField = fieldName => {
+      if (fieldInfo[fieldName] === undefined) {
+        return false;
+      }
+      // TODO: Need to format this different
+      addNewTextInput({
+        id: fieldName
+      });
+    };
+
     const addOptionalField = fieldName => {
       if (fieldInfo[fieldName] === undefined) {
         return false;
       }
       if (fieldInfo[fieldName].inputs === 2) {
         addNewMultiInput({
-          id: fieldName,
-          fieldType: "text"
+          id: fieldName
         });
       } else {
         addNewTextInput({
-          id: fieldName,
-          fieldType: "text"
+          id: fieldName
         });
       }
     };
@@ -197,24 +205,52 @@
     const renderFields = () => {
     };
 
+    const OPTIONAL = "optional";
+    const REQUIRED = "required";
+
     // Create a map of field id to different properties
     const fieldInfo = {
-      // "account": "",
-      // "trackingServer": "Tracking Server",
-      // "pageName": "Page Name",
+      trackingServer: {
+        "name": "Tracking Server",
+        "help": "This is the Adobe hosted domain where the request is sent (e.g. metrics.example.com)",
+        "inputs": 1,
+        "placeholder": "Enter Tracking Server here",
+        "url": "https://experienceleague.adobe.com/docs/analytics/implementation/vars/config-vars/trackingserversecure.html",
+        "type": REQUIRED
+      },
+      account: {
+        "name": "Report Suite ID",
+        "help": "This is a unique identifier representing a silo of data where the request data is stored (e.g. examplereportsuite).",
+        "inputs": 1,
+        "placeholder": "Enter RSID here",
+        "url": "https://experienceleague.adobe.com/docs/analytics/admin/admin-tools/manage-report-suites/c-new-report-suite/t-create-a-report-suite.html",
+        "type": REQUIRED
+      },
+      pageName: {
+        "name": "Page Name",
+        "help": "This is the name of the page that the request is sent from (e.g. Home Page).",
+        "inputs": 1,
+        "placeholder": "Enter Page Name here",
+        "url": "https://experienceleague.adobe.com/docs/analytics/implementation/vars/page-vars/pagename.html",
+        "type": REQUIRED
+      },
       prop: {
         "name": "Prop",
         "help": "Custom variable you can use however you'd like (e.g. Check-out Step 1).",
         "inputs": 2,
+        "max": 75,
         "placeholder": "Enter prop value here",
-        "url": "https://experienceleague.adobe.com/docs/analytics/implementation/vars/page-vars/prop.html"
+        "url": "https://experienceleague.adobe.com/docs/analytics/implementation/vars/page-vars/prop.html",
+        "type": OPTIONAL
       },
       eVar: {
         "name": "eVar",
         "help": "Captures actions or attributes (e.g. Summer Campaign).",
         "inputs": 2,
+        "max": 250,
         "placeholder": "Enter eVar value here",
-        "url": "https://experienceleague.adobe.com/docs/analytics/implementation/vars/page-vars/evar.html"
+        "url": "https://experienceleague.adobe.com/docs/analytics/implementation/vars/page-vars/evar.html",
+        "type": OPTIONAL
       },
       events: {
         "name": "Events",
@@ -228,14 +264,106 @@
         "help": "Tracks products and properties tied to them (e.g. Example category 1;Example product 1;1;3.50).",
         "inputs": 1,
         "placeholder": "Enter product string here",
-        "url": "https://experienceleague.adobe.com/docs/analytics/implementation/vars/page-vars/products.html"
+        "url": "https://experienceleague.adobe.com/docs/analytics/implementation/vars/page-vars/products.html",
+        "type": OPTIONAL
       },
       campaign: {
         "name": "Campaign",
         "help": "Collects tracking codes on your site (legacy field and works just like an eVar).",
         "inputs": 1,
         "placeholder": "Enter campaign here",
-        "url": "https://experienceleague.adobe.com/docs/analytics/implementation/vars/page-vars/campaign.html"
+        "url": "https://experienceleague.adobe.com/docs/analytics/implementation/vars/page-vars/campaign.html",
+        "type": OPTIONAL
+      },
+      hier: {
+        "name": "Hier",
+        "help": "Tracks the hierarchical structure of your site (e.g. example: Sports/Local Sports/Baseball).",
+        "inputs": 2,
+        "max": 5,
+        "placeholder": "Enter hierarchy value here",
+        "url": "https://experienceleague.adobe.com/docs/analytics/implementation/vars/page-vars/hier.html",
+        "type": OPTIONAL
+      },
+      channel: {
+        "name": "Channel",
+        "help": "Tracks the site section where the request is sent from (e.g. Store).",
+        "inputs": 1,
+        "placeholder": "Enter site section here",
+        "url": "https://experienceleague.adobe.com/docs/analytics/implementation/vars/page-vars/channel.html",
+        "type": OPTIONAL
+      },
+      list: {
+        "name": "List",
+        "help": "Tracks a list of values where values work similar to eVar's (e.g. Red,Blue).",
+        "inputs": 2,
+        "max": 3,
+        "placeholder": "Enter comma delimited list values here",
+        "url": "https://experienceleague.adobe.com/docs/analytics/implementation/vars/page-vars/list.html",
+        "type": OPTIONAL
+      },
+      pageType: {
+        "name": "Page Type",
+        "help": "Indicates if this request is sent from an error page (e.g. errorPage).",
+        "inputs": 1,
+        "placeholder": "Enter page type here",
+        "url": "https://experienceleague.adobe.com/docs/analytics/implementation/vars/page-vars/pagetype.html",
+        "type": OPTIONAL
+      },
+      pageURL: {
+        "name": "Page URL",
+        "help": "Overriding the URL of the page where the request is sent from (e.g. www.example.com).",
+        "inputs": 1,
+        "placeholder": "Enter page URL here",
+        "url": "https://experienceleague.adobe.com/docs/analytics/implementation/vars/page-vars/pageurl.html",
+        "type": OPTIONAL
+      },
+      purchaseID: {
+        "name": "Purchase ID",
+        "help": "Tracks the unique identifier for a purchase (e.g. 12345).",
+        "inputs": 1,
+        "placeholder": "Enter purchase ID here",
+        "url": "https://experienceleague.adobe.com/docs/analytics/implementation/vars/page-vars/purchaseid.html",
+        "type": OPTIONAL
+      },
+      referrer: {
+        "name": "Referrer",
+        "help": "Overriding the referring URL (e.g. www.google.com).",
+        "inputs": 1,
+        "placeholder": "Enter referrer here",
+        "url": "https://experienceleague.adobe.com/docs/analytics/implementation/vars/page-vars/referrer.html",
+        "type": OPTIONAL
+      },
+      server: {
+        "name": "Server",
+        "help": "Server (e.g. hostname) that served the page where the request is sent from.",
+        "inputs": 1,
+        "placeholder": "Enter server here",
+        "url": "https://experienceleague.adobe.com/docs/analytics/implementation/vars/page-vars/server.html",
+        "type": OPTIONAL
+      },
+      transactionID: {
+        "name": "Transaction ID",
+        "help": "Unique identifier for a transaction (e.g. 12345) to tie data other data sources.",
+        "inputs": 1,
+        "placeholder": "Enter transaction ID here",
+        "url": "https://experienceleague.adobe.com/docs/analytics/implementation/vars/page-vars/transactionid.html",
+        "type": OPTIONAL
+      },
+      zip: {
+        "name": "Zip",
+        "help": "Zip code of the user where the request is sent from (e.g. 92101).",
+        "inputs": 1,
+        "placeholder": "Enter zip code here",
+        "url": "https://experienceleague.adobe.com/docs/analytics/implementation/vars/page-vars/zip.html",
+        "type": OPTIONAL
+      },
+      timestamp: {
+        "name": "Timestamp",
+        "help": "Overriding the timestamp of the request (e.g. 2022-01-01T00:00:00).",
+        "inputs": 1,
+        "placeholder": "Enter timestamp here",
+        "url": "https://experienceleague.adobe.com/docs/analytics/implementation/vars/page-vars/timestamp.html",
+        "type": OPTIONAL
       }
     };
 
@@ -267,7 +395,7 @@
       return formValues;
     };
 
-    const indexedFieldPrefixes = ["prop", "eVar"];
+    const indexedFieldPrefixes = ["prop", "eVar", "list", "hier"];
 
     const getIndexedFieldPrefix = (field) => {
       for (let i = 0; i < indexedFieldPrefixes.length; i++) {
@@ -439,8 +567,19 @@
               <option value="eVar">eVar</option>
               <option value="events">Events</option>
               <option value="products">Products</option>
-              <!-- <option>Hier</option> -->
               <option value="campaign">Campaign</option>
+              <option value="hier">Hier</option>
+              <option value="channel">Channel</option>
+              <option value="list">List</option>
+              <option value="pageType">Page Type</option>
+              <option value="pageURL">Page URL</option>
+              <option value="purchaseID">Purchase ID</option>
+              <option value="referrer">Referrer</option>
+              <option value="server">Server</option>
+              <option value="transactionID">Transaction ID</option>
+              <option value="zip">Zip</option>
+              <option value="timestamp">Timestamp</option>
+              <!-- <option value="contextData">Context Data</option> -->
             </select>
           </div>
           <div class="form-group col-auto">
