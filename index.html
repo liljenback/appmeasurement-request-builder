@@ -369,7 +369,6 @@
 
     let s;
 
-
     const clearForm = () => {
       document.getElementById("account").value = "";
       document.getElementById("trackingServer").value = "rsid.data.adobedc.net";
@@ -434,7 +433,7 @@
               number: number,
               value: formValues[key]
             });
-          } else {
+          } else if (fieldInfo[key]) {
             addNewTextInput({
               id: key,
               value: formValues[key]
@@ -514,6 +513,117 @@
       loadFormValuesFromLocalStorage();
     });
 
+    const parseRequestUrl = (url) => {
+      const parsedUrl = new URL(url);
+      const requestDetails = {};
+      requestDetails.schema = parsedUrl.protocol.replace(':', '');
+      requestDetails.trackingServer = parsedUrl.hostname;
+      requestDetails.pathDetails = parseRequestPath(parsedUrl.pathname);
+      const urlParams = new URLSearchParams(parsedUrl.search);
+      requestDetails.params = {};
+      for (const [key, value] of urlParams) {
+        requestDetails.params[key] = decodeURIComponent(value);
+      }
+      return requestDetails;
+    }
+
+    const parseRequestPath = (str) => {
+      const regex = /^\/b\/ss\/([^/]+)\/(\d+)\/([^/]+)\/([^/]+)/;
+      const match = str.match(regex);
+      if (!match) {
+        alert("Invalid string format. Required format: /b/ss/account/clientType/version");
+        return null;
+      }
+      const [, account, clientType, version] = match;
+      return {
+        account,
+        clientType: parseInt(clientType),
+        version
+      };
+    };
+
+
+    /* 
+      Maps the parameters from the request to the parameters used in the AppMeasurement API.
+        ch = channel
+        ts = timestamp
+        pageName = pageName
+        g = pageURL
+        r = referrer
+        puchaseID = purchaseID
+        server = server
+        pageType = pageType
+        xact = transactionID
+        v0 = campaign
+        zip = zip
+        events = events
+        products = products
+        c# = prop# (where # can be between 1 and hundreds)
+        v# = eVar# (where # can be between 1 and hundreds)
+        h# = hier# (where # can be between 1 and hundreds)
+        l# = list# (where # can be between 1 and hundreds)
+
+        props, evars, lists, and hiers are indexed fields and need special treatment.
+    */
+    const mapRequestParametersToApiParameters = (params) => {
+      const apiParams = {};
+      for (const key in params) {
+        if (key === "ch") {
+          apiParams.channel = params[key];
+        } else if (key === "ts") {
+          apiParams.timestamp = params[key];
+        } else if (key === "pageName") {
+          apiParams.pageName = params[key];
+        } else if (key === "g") {
+          apiParams.pageURL = params[key];
+        } else if (key === "r") {
+          apiParams.referrer = params[key];
+        } else if (key === "purchaseID") {
+          apiParams.purchaseID = params[key];
+        } else if (key === "server") {
+          apiParams.server = params[key];
+        } else if (key === "pageType") {
+          apiParams.pageType = params[key];
+        } else if (key === "xact") {
+          apiParams.transactionID = params[key];
+        } else if (key === "v0") {
+          apiParams.campaign = params[key];
+        } else if (key === "zip") {
+          apiParams.zip = params[key];
+        } else if (key === "events") {
+          apiParams.events = params[key];
+        } else if (key === "products") {
+          apiParams.products = params[key];
+        } else if (key.match(/^c\d+$/)) {
+          const newKey = "prop" + key.replace("c", "");
+          apiParams[newKey] = params[key];
+        } else if (key.match(/^v\d+$/)) {
+          const newKey = "eVar" + key.replace("v", "");
+          apiParams[newKey] = params[key];
+        } else if (key.match(/^h\d+$/)) {
+          const newKey = "hier" + key.replace("h", "");
+          apiParams[newKey] = params[key];
+        } else if (key.match(/^l\d+$/)) {
+          const newKey = "list" + key.replace("l", "");
+          apiParams[newKey] = params[key];
+        }
+      }
+      return apiParams;
+    };
+
+
+
+    const parseRequestUrlAndPopulateForm = (url) => {
+      clearForm();
+      const requestDetails = parseRequestUrl(url);
+      console.log(requestDetails);
+      if (requestDetails) {
+        document.getElementById("account").value = requestDetails.pathDetails.account;
+        document.getElementById("trackingServer").value = requestDetails.trackingServer;
+        populateForm(mapRequestParametersToApiParameters(requestDetails.params));
+      }
+    };
+
   </script>
 
   <br>
@@ -522,7 +632,7 @@
     <p class="lead">This is a simple tool to help you build and send an AppMeasurement request.</p>
     <hr class="my-4">
     <p>Use this form to specify properties to send to Adobe Analytics.</p>
-    <div class="container-sm p-0" >
+    <div class="container-sm p-0">
       <form id="requestForm" onsubmit="event.preventDefault(); sendRequest();">
         <div class="mb-3">
           <label for="trackingServer" class="form-label">Tracking Server</label>
@@ -551,7 +661,8 @@
         <div class="mb-3">
           <label for="pageName" class="form-label">Page Name</label>
           <div class="input-group">
-            <input type="text" value="Test Page" class="form-control" id="pageName" placeholder="Input a page name here">
+            <input type="text" value="Test Page" class="form-control" id="pageName"
+              placeholder="Input a page name here">
           </div>
           <div class="form-text text-muted" id="pageNameHelp">
             The name of the page that the request is sent from (e.g. Home Page). <a
@@ -589,6 +700,21 @@
             <!-- button that triggers a new field creation -->
             <button type="button" class="btn btn-outline-secondary"
               onclick="addOptionalField(document.getElementById('fieldType').value)">Add Field</button>
+          </div>
+        </div>
+        <br>
+        <div class="row g-3">
+          <div class="form-group col-sm-5">
+
+            <div class="input-group">
+              <input type="text" class="form-control" id="parseUrl" placeholder="Parse request URL and populate form">
+            </div>
+
+          </div>
+          <div class="form-group col-auto">
+            <!-- button that triggers a new field creation -->
+            <button type="button" class="btn btn-outline-secondary"
+              onclick="parseRequestUrlAndPopulateForm(document.getElementById('parseUrl').value)">Parse</button>
           </div>
         </div>
         <br>
