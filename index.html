@@ -85,7 +85,7 @@
       const helpElement = document.createElement("div");
       helpElement.classList.add("form-text");
       helpElement.classList.add("text-muted");
-      helpElement.innerHTML = fieldInfo[id]["help"] + " " + `<a href="${fieldInfo[id]["url"]}" target="_blank">.. learn more</a>`;
+      helpElement.innerHTML = fieldInfo[id]["help"] + " " + `<a href="${fieldInfo[id]["url"]}" target="_blank">Learn more.</a>`;
 
       const deleteButton = document.createElement("button");
       deleteButton.classList.add("btn");
@@ -150,7 +150,7 @@
       const helpElement = document.createElement("div");
       helpElement.classList.add("form-text");
       helpElement.classList.add("text-muted");
-      helpElement.innerHTML = fieldInfo[id]["help"] + " " + `<a href="${fieldInfo[id]["url"]}" target="_blank">.. learn more</a>`;
+      helpElement.innerHTML = fieldInfo[id]["help"] + " " + `<a href="${fieldInfo[id]["url"]}" target="_blank">Learn more.</a>`;
 
       const deleteButton = document.createElement("button");
       deleteButton.classList.add("btn");
@@ -498,9 +498,12 @@
         s[id] = value;
       }
 
+      s.registerPostTrackCallback(function (request) {
+        alert("Request sent! Check the network tab in your browser to see the request being sent.");
+      });
+
       // Send the request
       s.t();
-      alert("Request sent! Check the network tab in your browser to see the request being sent.");
 
       saveFormValuesToLocalStorage();
 
@@ -528,9 +531,9 @@
               placeholder="Tracking Server" required>
           </div>
           <div class="form-text text-muted" id="trackingServerHelp">
-            This is the Adobe hosted domain where the request is sent (e.g. metrics.example.com)<a
+            The Adobe hosted domain where the request is sent (e.g. metrics.example.com) <a
               href="https://experienceleague.adobe.com/docs/analytics/implementation/vars/config-vars/trackingserversecure.html"
-              target="_blank">.. learn more</a>
+              target="_blank">Learn more.</a>
           </div>
         </div>
         <div class="mb-3">
@@ -539,10 +542,10 @@
             <input type="text" class="form-control" id="account" placeholder="Enter RSID here" required>
           </div>
           <div class="form-text text-muted" id="rsidHelp">
-            This is a unique identifier representing a silo of data where the request data is stored (e.g.
-            examplereportsuite).<a
+            A unique identifier representing a silo of data where the request data is sent and stored (e.g.
+            examplereportsuite). <a
               href="https://experienceleague.adobe.com/docs/analytics/admin/admin-tools/manage-report-suites/c-new-report-suite/t-create-a-report-suite.html"
-              target="_blank">.. learn more</a>
+              target="_blank">Learn more</a>
           </div>
         </div>
         <div class="mb-3">
@@ -551,9 +554,9 @@
             <input type="text" value="Test Page" class="form-control" id="pageName" placeholder="Input a page name here">
           </div>
           <div class="form-text text-muted" id="pageNameHelp">
-            This is the name of the page that the request is sent from (e.g. Home Page).<a
+            The name of the page that the request is sent from (e.g. Home Page). <a
               href="https://experienceleague.adobe.com/docs/analytics/implementation/vars/page-vars/pagename.html"
-              target="_blank">.. learn more</a>
+              target="_blank">Learn more.</a>
           </div>
         </div>
         <div id="extraInputs">
