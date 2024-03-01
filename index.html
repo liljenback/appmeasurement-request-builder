@@ -133,7 +133,7 @@
 
       const numberInputElement = document.createElement("input");
       numberInputElement.setAttribute("type", "number");
-      numberInputElement.setAttribute("max", "100");
+      numberInputElement.setAttribute("max", fieldInfo[id]["max"] || "100");
       numberInputElement.setAttribute("min", "1");
       numberInputElement.setAttribute("value", number);
       numberInputElement.classList.add("form-control");
@@ -545,7 +545,7 @@
             A unique identifier representing a silo of data where the request data is sent and stored (e.g.
             examplereportsuite). <a
               href="https://experienceleague.adobe.com/docs/analytics/admin/admin-tools/manage-report-suites/c-new-report-suite/t-create-a-report-suite.html"
-              target="_blank">Learn more</a>
+              target="_blank">Learn more.</a>
           </div>
         </div>
         <div class="mb-3">
