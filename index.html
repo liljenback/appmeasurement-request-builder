@@ -39,7 +39,6 @@
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
-          ...
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -48,6 +47,7 @@
       </div>
     </div>
   </div>
+
 
   <script language="JavaScript">
 
@@ -373,6 +373,7 @@
       document.getElementById("account").value = "";
       document.getElementById("trackingServer").value = "rsid.data.adobedc.net";
       document.getElementById("pageName").value = "Test Page";
+      document.getElementById("parseUrl").value = "";
       document.getElementById(extraInputDiv).innerHTML = "";
     };
 
@@ -444,23 +445,54 @@
     };
 
 
-    const saveFormValuesToLocalStorage = () => {
+    const STORAGE_VERSION = "1.1.0";
+    const STORAGE_NAME = "appmReqBuilderStoredForms";
+
+    const loadAndPopulateForm = (name) => {
+      const storedForms = loadFormsFromStorage();
+      if (storedForms && storedForms.forms[name]) {
+        clearForm();
+        populateForm(storedForms.forms[name]);
+      }
+    };
+
+    const loadFormsFromStorage = () => {
+      let storedForms = JSON.parse(localStorage.getItem(STORAGE_NAME)) || {};
+      if (storedForms.version !== STORAGE_VERSION) {
+        // Clear the stored forms if the version is different
+        //alert("The stored forms are from a different version and will be cleared... sorry 😐");
+        localStorage.removeItem(STORAGE_NAME);
+        storedForms = {};
+        storedForms.forms = {};
+        storedForms.version = STORAGE_VERSION;
+      }
+      return storedForms;
+    };
+
+    const deleteFormFromStorage = (name) => {
+      const storedForms = loadFormsFromStorage();
+      if (storedForms && storedForms.forms[name]) {
+        delete storedForms.forms[name];
+        localStorage.setItem(STORAGE_NAME, JSON.stringify(storedForms));
+      }
+    };
+
+    const saveFormToStorage = (name) => {
+      const storedForms = loadFormsFromStorage();
       const formValues = getFormValues();
-
-      console.log(formValues);
-
       if (formValues) {
-        localStorage.setItem("appmReqBuilderFormValues", JSON.stringify(formValues));
+        // If the form already exists, ask the user if they want to overwrite it
+        if (storedForms.forms[name]) {
+          if (confirm("A form with this name already exists. Do you want to overwrite it?")) {
+            storedForms.forms[name] = formValues;
+            localStorage.setItem(STORAGE_NAME, JSON.stringify(storedForms));
+          }
+        } else {
+          storedForms.forms[name] = formValues;
+          localStorage.setItem(STORAGE_NAME, JSON.stringify(storedForms));
+        }
       }
     };
-
-    const loadFormValuesFromLocalStorage = () => {
-      const formValues = JSON.parse(localStorage.getItem("appmReqBuilderFormValues"));
-      if (formValues) {
-        populateForm(formValues);
-      }
-    };
-
 
     const sendRequest = () => {
 
@@ -509,9 +541,9 @@
       return false;
     };
 
-    window.addEventListener("load", function () {
-      loadFormValuesFromLocalStorage();
-    });
+    // window.addEventListener("load", function () {
+    //   loadFormValuesFromLocalStorage();
+    // });
 
     const parseRequestUrl = (url) => {
       const parsedUrl = new URL(url);
@@ -611,7 +643,17 @@
       return apiParams;
     };
 
-
+    const refreshFormNameSelect = () => {
+      const storedForms = loadFormsFromStorage();
+      const formSelect = document.getElementById("formSelect");
+      formSelect.innerHTML = "";
+      for (const key in storedForms.forms) {
+        const option = document.createElement("option");
+        option.value = key;
+        option.textContent = key;
+        formSelect.appendChild(option);
+      }
+    };
 
     const parseRequestUrlAndPopulateForm = (url) => {
       clearForm();
@@ -625,6 +667,52 @@
     };
 
   </script>
+
+  <!-- <form id="saveForm" onsubmit="event.preventDefault(); "> -->
+
+  <div class="modal fade" id="saveFormModal" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Save Form</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <input type="text" class="form-control" id="formName" placeholder="Enter form name here">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-primary" data-bs-dismiss="modal"
+            onclick="saveFormToStorage(document.getElementById('formName').value);">Save</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="loadFormModal" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Save Form</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <select class="form-select" id="formSelect">
+            <option>Select a form to load ...</option>
+          </select>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-secondary"
+            onclick="deleteFormFromStorage(document.getElementById('formSelect').value); refreshFormNameSelect();">Delete</button>
+          <button type="button" class="btn btn-primary" data-bs-dismiss="modal"
+            onclick="loadAndPopulateForm(document.getElementById('formSelect').value);">Load</button>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <br>
   <div class="container-md text-sm-left p-5">
@@ -705,11 +793,9 @@
         <br>
         <div class="row g-3">
           <div class="form-group col-sm-5">
-
             <div class="input-group">
               <input type="text" class="form-control" id="parseUrl" placeholder="Parse request URL and populate form">
             </div>
-
           </div>
           <div class="form-group col-auto">
             <!-- button that triggers a new field creation -->
@@ -719,7 +805,11 @@
         </div>
         <br>
         <button type="submit" class="btn btn-primary">Send Request</button>
-        <button type="button" class="btn btn-secondary" onclick="clearForm()">Clear Form</button>
+        <button type="button" class="btn btn-secondary" onclick="refreshFormNameSelect();" data-bs-toggle="modal"
+          data-bs-target="#loadFormModal">Load</button>
+        <button type="button" class="btn btn-secondary" data-bs-toggle="modal"
+          data-bs-target="#saveFormModal">Save</button>
+        <button type="button" class="btn btn-secondary" onclick="clearForm()">Clear</button>
       </form>
     </div>
   </div>
