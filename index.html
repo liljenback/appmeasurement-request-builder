@@ -645,13 +645,26 @@
 
     const refreshFormNameSelect = () => {
       const storedForms = loadFormsFromStorage();
+      // If there are no forms make the first item spell out Select a form to load ... otherwise have it say No forms available
       const formSelect = document.getElementById("formSelect");
       formSelect.innerHTML = "";
-      for (const key in storedForms.forms) {
-        const option = document.createElement("option");
-        option.value = key;
-        option.textContent = key;
-        formSelect.appendChild(option);
+      if (Object.keys(storedForms.forms).length === 0) {
+          // Hide the delete button if there are no forms
+          document.getElementById("deleteForm").style.display = "none";
+          document.getElementById("loadForm").style.display = "none";
+
+          option = document.createElement("option");
+          option.textContent = "No forms available";
+          formSelect.appendChild(option);
+      } else {
+        document.getElementById("deleteForm").style.display = "block";
+        document.getElementById("loadForm").style.display = "block";
+        for (const key in storedForms.forms) {
+          const option = document.createElement("option");
+          option.value = key;
+          option.textContent = key;
+          formSelect.appendChild(option);
+        }
       }
     };
 
@@ -698,6 +711,7 @@
           <h5 class="modal-title">Load Form</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
+        <!-- Text showing there are no available forms -->
         <div class="modal-body">
           <select class="form-select" id="formSelect">
             <option>Select a form to load ...</option>
@@ -705,9 +719,9 @@
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-          <button type="button" class="btn btn-secondary"
+          <button id="deleteForm" type="button" class="btn btn-secondary"
             onclick="deleteFormFromStorage(document.getElementById('formSelect').value); refreshFormNameSelect();">Delete</button>
-          <button type="button" class="btn btn-primary" data-bs-dismiss="modal"
+          <button id="loadForm" type="button" class="btn btn-primary" data-bs-dismiss="modal"
             onclick="loadAndPopulateForm(document.getElementById('formSelect').value);">Load</button>
         </div>
       </div>
