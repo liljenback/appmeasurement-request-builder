@@ -673,6 +673,17 @@
       }
     };
 
+    let currentCode = "";
+
+    const copyCurrentCodeToClipboard = () => {
+      if (currentCode) {
+        navigator.clipboard.writeText(currentCode).then(function () {
+        }, function (err) {
+          console.error("Failed to copy to clipboard", err);
+        });
+      }
+    };
+
     const buildCode = () => {
       const formValues = getFormValues();
       const codeView = document.getElementById("codeView");
@@ -692,6 +703,7 @@
       code += "\n// Send tracking request\n";
       code += "s.t();";
       codeView.textContent = code;
+      currentCode = code;
       if (codeView.dataset && codeView.dataset.highlighted) {
         console.log("resetting highlighted");
         delete codeView.dataset.highlighted;
@@ -750,7 +762,7 @@
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-          <button id="deleteForm" type="button" class="btn btn-secondary"
+          <button id="deleteForm" type="button" class="btn btn-warning"
             onclick="deleteFormFromStorage(document.getElementById('formSelect').value); refreshFormNameSelect();">Delete</button>
           <button id="loadForm" type="button" class="btn btn-primary" data-bs-dismiss="modal"
             onclick="loadAndPopulateForm(document.getElementById('formSelect').value);">Load</button>
@@ -760,7 +772,7 @@
   </div>
 
   <div class="modal fade" id="codeViewModal" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title">Implementation</h5>
@@ -773,6 +785,7 @@
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-primary" onclick="copyCurrentCodeToClipboard()">Copy</button>
         </div>
       </div>
     </div>
