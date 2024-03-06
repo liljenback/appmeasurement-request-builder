@@ -684,7 +684,8 @@
       code += "// Set all properties on the tracker\n";
       code += `s.pageName = '${formValues.pageName}';\n`;
       for (const key in formValues) {
-        if (key !== "account" && key !== "trackingServer" && key !== "pageName") {
+        // TODO: This is a bit hacky. I should have a list of fields that are not to be set on the tracker
+        if (key !== "account" && key !== "trackingServer" && key !== "pageName" && key !== "parseUrl") {
           code += `s.${key} = '${formValues[key]}';\n`;
         }
       }
