@@ -453,11 +453,14 @@
     const STORAGE_VERSION = "1.1.0";
     const STORAGE_NAME = "appmReqBuilderStoredForms";
 
+    let currentFormName = "";
+
     const loadAndPopulateForm = (name) => {
       const storedForms = loadFormsFromStorage();
       if (storedForms && storedForms.forms[name]) {
         clearForm();
         populateForm(storedForms.forms[name]);
+        currentFormName = name;
       }
     };
 
@@ -540,8 +543,6 @@
 
       // Send the request
       s.t();
-
-      saveFormValuesToLocalStorage();
 
       return false;
     };
@@ -884,7 +885,7 @@
         <button type="submit" class="btn btn-primary">Send Request</button>
         <button type="button" class="btn btn-secondary" onclick="refreshFormNameSelect();" data-bs-toggle="modal"
           data-bs-target="#loadFormModal">Load</button>
-        <button type="button" class="btn btn-secondary" data-bs-toggle="modal"
+        <button type="button" class="btn btn-secondary" onclick="document.getElementById('formName').value=currentFormName;" data-bs-toggle="modal"
           data-bs-target="#saveFormModal">Save</button>
         <button type="button" class="btn btn-secondary" onclick="buildCode();" data-bs-toggle="modal"
           data-bs-target="#codeViewModal">Code</button>
